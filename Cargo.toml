@@ -1,0 +1,16 @@
+[package]
+name = "yawc"
+version = "0.1.0"
+description = "Yet another Wordle clone"
+repository = "https://github.com/zohnannor/wordle/"
+readme = "README.md"
+keywords = ["tui", "game"]
+categories = ["games"]
+edition = "2021"
+
+[dependencies]
+crossterm = "0.23.0"
+lazy-regex = "2.2.2"
+rand = "0.8.5"
+
+[features]
