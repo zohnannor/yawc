@@ -46,12 +46,6 @@ impl Game<'_> {
         'game: loop {
             'round: loop {
                 loop {
-                    // execute!(
-                    //     self.term,
-                    //     terminal::SetTitle(
-                    //         &self.guesses.iter().map(|x| x.0.clone()).collect::<String>()
-                    //     )
-                    // )?;
                     match event::read()? {
                         event::Event::Key(k) => match k.code {
                             KeyCode::Char('C') if k.modifiers == KeyModifiers::CONTROL => {
