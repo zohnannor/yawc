@@ -22,11 +22,13 @@ impl Keyboard {
 
 impl Keyboard {
     pub(crate) fn mark_letter(&mut self, letter: char, mark: Match) {
-        if let Some(m) = self
-            .0
-            .iter_mut()
-            .find_map(|(c, m)| if *c == letter { Some(m) } else { None })
-        {
+        if let Some(m) = self.0.iter_mut().find_map(|(c, m)| {
+            if *c == letter && !matches!(m, Some(Match::Correct)) {
+                Some(m)
+            } else {
+                None
+            }
+        }) {
             *m = Some(mark);
         }
     }
