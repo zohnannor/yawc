@@ -1,6 +1,6 @@
 # Yeah, it's yet another wordle clone
 
-![game](2022-02-20-15-45-36.png)
+![game](./assets/2022-02-20-15-45-36.png)
 
 ## Installation
 
