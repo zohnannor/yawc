@@ -68,10 +68,7 @@ impl Game<'_> {
                             }
                             _ => {}
                         },
-                        event::Event::Resize(..) => {
-                            self.redraw_screen()?;
-                        }
-                        event::Event::Mouse(_) => {}
+                        event::Event::Resize(..) | event::Event::Mouse(_) => {}
                     }
 
                     self.redraw_screen()?;
@@ -171,23 +168,23 @@ impl Game<'_> {
         } else {
             ("loose", self.secret_word.red())
         };
-        self.write_status_bar(&[
-            "You ",
-            state,
-            "! The word was ",
-            &word.to_string(),
-            ". Start again? y/n ",
-        ])?;
+
         loop {
+            self.redraw_screen()?;
+            self.write_status_bar(&[
+                "You ",
+                state,
+                "! The word was ",
+                &word.to_string(),
+                ". Start again? y/n ",
+            ])?;
             match event::read()? {
                 event::Event::Key(k) => match k.code {
                     KeyCode::Char('y') => return Ok(Some(())),
                     KeyCode::Char('n') => return Ok(None),
                     _ => {}
                 },
-                event::Event::Resize(..) => {
-                    self.redraw_screen()?;
-                }
+                event::Event::Resize(..) => {}
                 event::Event::Mouse(_) => (),
             }
         }
