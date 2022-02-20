@@ -158,7 +158,8 @@ impl Game<'_> {
         self.guess.clear();
         self.guesses.clear();
         self.secret_word = WORDS.choose(&mut thread_rng()).unwrap();
-        execute!(self.term, terminal::Clear(terminal::ClearType::All),)?;
+        execute!(self.term, terminal::Clear(terminal::ClearType::All))?;
+        self.keyboard = Keyboard::default();
         self.draw_grid()?;
         self.write_status_bar(&["Type in a word and press Enter! CTRL-C to quit."])?;
         Ok(())
