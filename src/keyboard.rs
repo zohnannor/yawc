@@ -100,11 +100,11 @@ fn print_row<'a>(
             f,
             " {} │",
             m.map_or_else(
-                || c.to_ascii_uppercase().black().on_white(),
+                || c.to_ascii_uppercase().white().bold(),
                 |m| match m {
                     Match::Correct => c.to_ascii_uppercase().black().on_green(),
                     Match::Misplaced => c.to_ascii_uppercase().black().on_yellow(),
-                    Match::Incorrect => c.to_ascii_uppercase().white(),
+                    Match::Incorrect => c.to_ascii_uppercase().dark_grey().crossed_out().dim(),
                 }
             )
         )?;
