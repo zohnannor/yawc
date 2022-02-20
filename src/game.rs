@@ -70,7 +70,10 @@ impl Game<'_> {
                             }
                             _ => {}
                         },
-                        event::Event::Resize(..) | event::Event::Mouse(_) => {}
+                        event::Event::Resize(..) => {
+                            execute!(self.term, terminal::Clear(terminal::ClearType::All))?;
+                        }
+                        event::Event::Mouse(_) => {}
                     }
 
                     self.redraw_screen()?;
@@ -314,7 +317,6 @@ impl Game<'_> {
         let (width, height) = size()?;
         execute!(
             self.term,
-            terminal::Clear(terminal::ClearType::All),
             terminal::SetSize(cmp::max(width, 47), cmp::max(height, 13))
         )?;
         self.draw_grid()?;
