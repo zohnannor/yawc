@@ -44,11 +44,13 @@ impl Game<'_> {
     #[allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
     pub fn main_loop(mut self) -> io::Result<()> {
         'game: loop {
+            self.redraw_screen()?;
+            self.write_status_bar(&["Type in a word and press Enter! CTRL-C to quit."])?;
             'round: loop {
                 loop {
                     match event::read()? {
                         event::Event::Key(k) => match k.code {
-                            KeyCode::Char('C') if k.modifiers == KeyModifiers::CONTROL => {
+                            KeyCode::Char('C' | 'c') if k.modifiers == KeyModifiers::CONTROL => {
                                 break 'game
                             }
                             KeyCode::Char(c)
