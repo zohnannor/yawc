@@ -107,7 +107,7 @@ impl Game<'_> {
 
             if self.is_win() {
                 Ok(Some(GameState::Win))
-            } else if self.is_loose() {
+            } else if self.is_lose() {
                 Ok(Some(GameState::Loose))
             } else {
                 Ok(None)
@@ -171,7 +171,7 @@ impl Game<'_> {
         let (state, word) = if self.is_win() {
             ("won", self.secret_word.green())
         } else {
-            ("loose", self.secret_word.red())
+            ("lose", self.secret_word.red())
         };
 
         loop {
@@ -263,7 +263,7 @@ impl Game<'_> {
         self.guesses.last().unwrap().1 == [Match::Correct; 5] && self.guesses.len() <= 6
     }
 
-    fn is_loose(&self) -> bool {
+    fn is_lose(&self) -> bool {
         self.guesses.last().unwrap().1 != [Match::Correct; 5] && self.guesses.len() >= 6
     }
 
