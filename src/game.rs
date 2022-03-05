@@ -12,7 +12,6 @@ use crossterm::{
     style::{self, Stylize},
     terminal::{self, size},
 };
-use lazy_regex::regex_replace_all;
 use rand::{prelude::SliceRandom, thread_rng};
 
 use crate::{
@@ -206,9 +205,8 @@ impl Game<'_> {
                 let len: u16 = strings
                     .iter()
                     .map(|s| {
-                        regex_replace_all!(r"\x1b\[[;\d]*[a-zA-Z]", s, |_| "")
-                            .chars()
-                            .count()
+                        use strip_ansi_escapes::strip;
+                        strip(s).unwrap().iter().count()
                     })
                     .sum::<usize>()
                     .try_into()
