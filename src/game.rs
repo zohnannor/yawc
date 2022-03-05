@@ -189,7 +189,9 @@ impl Game<'_> {
                     KeyCode::Char('n') => return Ok(None),
                     _ => {}
                 },
-                event::Event::Resize(..) => {}
+                event::Event::Resize(..) => {
+                    execute!(self.term, terminal::Clear(terminal::ClearType::All))?;
+                }
                 event::Event::Mouse(_) => (),
             }
         }
