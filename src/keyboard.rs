@@ -105,7 +105,7 @@ where
                 Some(m) => match m {
                     Match::Correct => c.black().on_green(),
                     Match::Misplaced => c.black().on_yellow(),
-                    Match::Incorrect => c.dark_grey().crossed_out().dim(),
+                    Match::Incorrect => c.grey().crossed_out().dim(),
                 },
                 None => c.white().bold(),
             }

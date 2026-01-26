@@ -54,6 +54,13 @@ pub struct Game<'word> {
     guess: String,
     keyboard: Keyboard,
     term: Terminal,
+    stats: Stats,
+}
+
+#[derive(Debug, Default)]
+struct Stats {
+    wins: usize,
+    losses: usize,
 }
 
 impl Game<'_> {
@@ -66,14 +73,25 @@ impl Game<'_> {
             guess: String::default(),
             keyboard: Keyboard::default(),
             term: Terminal::new()?,
+            stats: Stats::default(),
         })
+    }
+
+    #[must_use]
+    pub fn stats(&self) -> String {
+        format!(
+            "[{}/{}/{}] ",
+            self.stats.wins.to_string().green(),
+            self.stats.losses.to_string().red(),
+            self.stats.wins + self.stats.losses
+        )
     }
 
     pub fn main_loop(mut self) -> io::Result<()> {
         'game: loop {
             'round: loop {
                 self.redraw_screen()?;
-                self.write_status_bar(&[DEFAULT_STATUS_MSG])?;
+                self.write_status_bar(&[&self.stats(), DEFAULT_STATUS_MSG])?;
                 match event::read()? {
                     event::Event::Key(k) => match k.code {
                         KeyCode::Char('C' | 'c') if k.modifiers == KeyModifiers::CONTROL => {
@@ -88,9 +106,16 @@ impl Game<'_> {
                             let _ = self.guess.pop();
                         }
                         KeyCode::Enter if self.guess.len() == WORD_LENGTH => {
-                            if self.guess()?.is_some() {
-                                break 'round;
+                            match self.guess()? {
+                                Some(GameState::Win) => {
+                                    self.stats.wins += 1;
+                                }
+                                Some(GameState::Lost) => {
+                                    self.stats.losses += 1;
+                                }
+                                None => continue,
                             }
+                            break 'round;
                         }
                         _ => {}
                     },
@@ -161,7 +186,7 @@ impl Game<'_> {
                 width / 2 - GUESS_HORIZONTAL_OFFSET,
                 (self.guesses.len() * 2 + 1).try_into().unwrap_or_default(),
             );
-            self.write_status_bar(&[NOT_IN_WORD_LIST_MSG])?;
+            self.write_status_bar(&[&self.stats(), NOT_IN_WORD_LIST_MSG])?;
             for i in 0..=INVALID_ANIMATION_CYCLES {
                 for c in self.guess.chars() {
                     let c = c.to_ascii_uppercase();
@@ -188,7 +213,7 @@ impl Game<'_> {
         execute!(self.term, terminal::Clear(terminal::ClearType::All))?;
         self.keyboard = Keyboard::default();
         self.draw_grid()?;
-        self.write_status_bar(&[DEFAULT_STATUS_MSG])?;
+        self.write_status_bar(&[&self.stats(), DEFAULT_STATUS_MSG])?;
         Ok(())
     }
 
@@ -209,7 +234,7 @@ impl Game<'_> {
 
         loop {
             self.redraw_screen()?;
-            self.write_status_bar(&[state_prefix, &word, PLAY_AGAIN_PROMPT])?;
+            self.write_status_bar(&[&self.stats(), state_prefix, &word, PLAY_AGAIN_PROMPT])?;
             return Ok(match event::read()? {
                 event::Event::Key(k) => match k.code {
                     KeyCode::Char('y' | 'Y') | KeyCode::Enter => Some(()),
@@ -231,7 +256,6 @@ impl Game<'_> {
 
     fn write_status_bar(&mut self, strings: &[&str]) -> io::Result<()> {
         let (width, height) = size()?;
-
         let height = match height.cmp(&MIN_TERMINAL_HEIGHT) {
             cmp::Ordering::Less => return Ok(()),
             cmp::Ordering::Equal => height,
