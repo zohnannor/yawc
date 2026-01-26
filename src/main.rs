@@ -1,6 +1,13 @@
+#![expect(clippy::missing_errors_doc, reason = "no one cares")]
+
+pub mod game;
+pub mod keyboard;
+pub mod raw;
+pub mod words;
+
 use std::io;
 
-use yawc::game::Game;
+use crate::game::Game;
 
 fn main() {
     let run = || {

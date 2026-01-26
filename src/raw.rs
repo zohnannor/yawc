@@ -1,14 +1,18 @@
+use std::{
+    io::{self, Stdout, stdout},
+    ops,
+};
+
 use crossterm::{
     cursor, execute,
     style::{self, Color},
     terminal,
 };
 
-use std::io::{self, stdout, Stdout};
-
+#[derive(Debug)]
 pub struct Terminal(Stdout);
 
-impl std::ops::Deref for Terminal {
+impl ops::Deref for Terminal {
     type Target = Stdout;
 
     fn deref(&self) -> &Self::Target {
@@ -16,7 +20,7 @@ impl std::ops::Deref for Terminal {
     }
 }
 
-impl std::ops::DerefMut for Terminal {
+impl ops::DerefMut for Terminal {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -30,7 +34,8 @@ impl Terminal {
             stdout,
             terminal::EnterAlternateScreen,
             cursor::Hide,
-            style::SetBackgroundColor(Color::Black)
+            style::SetBackgroundColor(Color::Black),
+            terminal::Clear(terminal::ClearType::All),
         )?;
 
         Ok(Self(stdout))
@@ -38,13 +43,12 @@ impl Terminal {
 }
 impl Drop for Terminal {
     fn drop(&mut self) {
-        terminal::disable_raw_mode().ok();
-        execute!(
+        drop(terminal::disable_raw_mode());
+        drop(execute!(
             self.0,
             style::ResetColor,
             cursor::Show,
             terminal::LeaveAlternateScreen
-        )
-        .ok();
+        ));
     }
 }

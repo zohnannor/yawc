@@ -1,34 +1,31 @@
-use std::fmt;
+use std::{fmt, iter::repeat};
 
 use crossterm::{
     cursor::{self},
-    style::{self, Stylize},
+    style::{self, Stylize as _},
 };
 
 use crate::game::Match;
 
+#[derive(Debug)]
 pub(crate) struct Keyboard(Vec<(char, Option<Match>)>);
 
 impl Keyboard {
     fn new() -> Self {
-        let letters = "qwertyuiopasdfghjklzxcvbnm";
-        let mut keyboard = Vec::with_capacity(26);
-        for c in letters.chars() {
-            keyboard.push((c, None));
-        }
-        Self(keyboard)
+        Self(
+            "qwertyuiopasdfghjklzxcvbnm"
+                .chars()
+                .zip(repeat(None))
+                .collect(),
+        )
     }
-}
 
-impl Keyboard {
     pub(crate) fn mark_letter(&mut self, letter: char, mark: Match) {
-        if let Some(m) = self.0.iter_mut().find_map(|(c, m)| {
-            if *c == letter && !matches!(m, Some(Match::Correct)) {
-                Some(m)
-            } else {
-                None
-            }
-        }) {
+        if let Some(m) = self
+            .0
+            .iter_mut()
+            .find_map(|(c, m)| (*c == letter).then_some(m))
+        {
             *m = Some(mark);
         }
     }
@@ -42,6 +39,8 @@ impl Default for Keyboard {
 
 impl fmt::Display for Keyboard {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut it = self.0.iter();
+        let it = it.by_ref();
         write!(
             f,
             "{}{}{}{}{}{}",
@@ -52,7 +51,7 @@ impl fmt::Display for Keyboard {
             cursor::SavePosition,
             style::Print("│"),
         )?;
-        print_row(f, self.0.iter().take(10))?;
+        print_row(f, it.take(10))?;
         write!(
             f,
             "{}{}{}{}{}{}{}{}",
@@ -65,7 +64,7 @@ impl fmt::Display for Keyboard {
             cursor::SavePosition,
             style::Print("  │"),
         )?;
-        print_row(f, self.0.iter().skip(10).take(9))?;
+        print_row(f, it.take(9))?;
         write!(
             f,
             "{}{}{}{}{}{}{}{}",
@@ -78,7 +77,7 @@ impl fmt::Display for Keyboard {
             cursor::SavePosition,
             style::Print("    │"),
         )?;
-        print_row(f, self.0.iter().skip(10).skip(9))?;
+        print_row(f, it)?;
         write!(
             f,
             "{}{}{}{}",
@@ -91,22 +90,25 @@ impl fmt::Display for Keyboard {
     }
 }
 
-fn print_row<'a>(
-    f: &mut fmt::Formatter,
-    row: impl Iterator<Item = &'a (char, Option<Match>)>,
-) -> Result<(), fmt::Error> {
+fn print_row<'item, I>(f: &mut fmt::Formatter<'_>, row: I) -> fmt::Result
+where
+    I: Iterator<Item = &'item (char, Option<Match>)>,
+{
     for (c, m) in row {
+        let c = c.to_ascii_uppercase();
+        // unfortunate to_string
+        let c = fmt::from_fn(|f| write!(f, " {c} ")).to_string();
         write!(
             f,
-            " {} │",
-            m.map_or_else(
-                || c.to_ascii_uppercase().white().bold(),
-                |m| match m {
-                    Match::Correct => c.to_ascii_uppercase().black().on_green(),
-                    Match::Misplaced => c.to_ascii_uppercase().black().on_yellow(),
-                    Match::Incorrect => c.to_ascii_uppercase().dark_grey().crossed_out().dim(),
-                }
-            )
+            "{}│",
+            match m {
+                Some(m) => match m {
+                    Match::Correct => c.black().on_green(),
+                    Match::Misplaced => c.black().on_yellow(),
+                    Match::Incorrect => c.dark_grey().crossed_out().dim(),
+                },
+                None => c.white().bold(),
+            }
         )?;
     }
     Ok(())
