@@ -24,7 +24,7 @@ impl Keyboard {
         if let Some(m) = self
             .0
             .iter_mut()
-            .find_map(|(c, m)| (*c == letter).then_some(m))
+            .find_map(|(c, m)| (*c == letter && !matches!(m, Some(Match::Correct))).then_some(m))
         {
             *m = Some(mark);
         }
