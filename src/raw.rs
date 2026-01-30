@@ -3,11 +3,7 @@ use std::{
     ops,
 };
 
-use crossterm::{
-    cursor, execute,
-    style::{self, Color},
-    terminal,
-};
+use crossterm::{cursor, execute, style, terminal};
 
 #[derive(Debug)]
 pub struct Terminal(Stdout);
@@ -34,7 +30,6 @@ impl Terminal {
             stdout,
             terminal::EnterAlternateScreen,
             cursor::Hide,
-            style::SetBackgroundColor(Color::Black),
             terminal::Clear(terminal::ClearType::All),
         )?;
 
