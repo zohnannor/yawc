@@ -193,7 +193,7 @@ impl Game<'_> {
                     if i % 2 == 0 {
                         write!(self.term, " {} │", c.black().on_red())?;
                     } else {
-                        write!(self.term, " {} │", c.red().on_black())?;
+                        write!(self.term, " {} │", c.red())?;
                     }
                 }
                 self.term.flush()?;
