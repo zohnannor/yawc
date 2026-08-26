@@ -41,6 +41,7 @@ const WIN_PROMPT_PREFIX: &str = "You won! The word was ";
 const LOSS_PROMPT_PREFIX: &str = "You lost! The word was ";
 const PLAY_AGAIN_PROMPT: &str = ". Start again? y/n (or Enter/Ctrl-C)";
 const ERROR_WORDS_EMPTY: &str = "`WORDS` is not empty";
+const ERROR_WORD_LENGTH: &str = "Word must be exactly 5 characters long";
 
 const GRID_TOP: &str = "┌───┬───┬───┬───┬───┐";
 const GRID_ROW: &str = "│   │   │   │   │   │";
@@ -63,12 +64,21 @@ struct Stats {
     losses: usize,
 }
 
-impl Game<'_> {
-    pub fn new() -> io::Result<Self> {
+impl<'word> Game<'word> {
+    pub fn new(word: Option<&'word str>) -> io::Result<Self> {
         Ok(Self {
-            secret_word: WORDS
-                .choose(&mut rand::rng())
-                .ok_or_else::<io::Error, _>(|| unreachable!("{ERROR_WORDS_EMPTY}"))?,
+            secret_word: match word {
+                Some(w) if w.len() == WORD_LENGTH => w,
+                Some(_) => {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        ERROR_WORD_LENGTH,
+                    ));
+                }
+                None => WORDS
+                    .choose(&mut rand::rng())
+                    .ok_or_else::<io::Error, _>(|| unreachable!("{ERROR_WORDS_EMPTY}"))?,
+            },
             guesses: Vec::default(),
             guess: String::default(),
             keyboard: Keyboard::default(),
