@@ -1,6 +1,6 @@
 [package]
 name = "yawc"
-version = "1.0.2"
+version = "1.1.0"
 description = "Yet another Wordle clone"
 repository = "https://github.com/zohnannor/wordle/"
 readme = "README.md"
